@@ -151,5 +151,47 @@
         <entry name="IndicatorDistinctAttention" type="Bool">
             <default>false</default>
         </entry>
+
+        <!-- workspace-bar pill: number + window icons (mirrors GNOME workspace-bar) -->
+        <entry name="WsbShowIcons" type="Bool">
+            <label>Show window icons per desktop (workspace-bar style)</label>
+            <default>true</default>
+        </entry>
+        <entry name="WsbSizeMode" type="Int">
+            <label>workspace-bar size preset (0=small,1=medium,2=large)</label>
+            <default>1</default>
+        </entry>
+        <entry name="WsbShowIconsBackground" type="Bool">
+            <label>Draw background chip behind number and icons</label>
+            <default>true</default>
+        </entry>
+        <entry name="WsbChipColor" type="String">
+            <label>Workspace chip background color</label>
+            <default>#1e1f22</default>
+        </entry>
+        <entry name="WsbActiveColor" type="String">
+            <label>Border color of the active workspace chip</label>
+            <default>#f5a623</default>
+        </entry>
+        <entry name="WsbLegibilityShadows" type="Bool">
+            <label>Legibility shadow behind pills</label>
+            <default>false</default>
+        </entry>
+        <entry name="WsbDimInactive" type="Bool">
+            <label>Dim unfocused window icons</label>
+            <default>false</default>
+        </entry>
+        <entry name="WsbDesaturateInactive" type="Bool">
+            <label>Desaturate unfocused window icons</label>
+            <default>false</default>
+        </entry>
+        <entry name="WsbCombineIcons" type="Bool">
+            <label>Combine same-app icons with count badge</label>
+            <default>true</default>
+        </entry>
+        <entry name="WsbMiddleClickClose" type="Bool">
+            <label>Middle-click icon closes window(s)</label>
+            <default>true</default>
+        </entry>
     </group>
 </kcfg>

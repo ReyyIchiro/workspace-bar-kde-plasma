@@ -114,6 +114,30 @@ KCM.SimpleKCM {
     property alias cfg_IndicatorDistinctOccupied: indicatorDistinctOccupiedCheckBox.checked
     property alias cfg_IndicatorDistinctAttention: indicatorDistinctAttentionCheckBox.checked
 
+    // workspace-bar pill options
+    property alias cfg_WsbShowIcons: wsbShowIconsCheckBox.checked
+    property alias cfg_WsbSizeMode: wsbSizeComboBox.currentIndex
+    property alias cfg_WsbShowIconsBackground: wsbBgCheckBox.checked
+    property alias cfg_WsbLegibilityShadows: wsbShadowCheckBox.checked
+    property alias cfg_WsbDimInactive: wsbDimCheckBox.checked
+    property alias cfg_WsbDesaturateInactive: wsbDesatCheckBox.checked
+    property alias cfg_WsbCombineIcons: wsbCombineCheckBox.checked
+    property alias cfg_WsbMiddleClickClose: wsbMiddleCloseCheckBox.checked
+    property string cfg_WsbChipColor
+    property string cfg_WsbActiveColor
+
+    // Schema defaults for the "Defaults" button (must match main.xml)
+    property bool   cfg_WsbShowIconsDefault: true
+    property int    cfg_WsbSizeModeDefault: 1
+    property bool   cfg_WsbShowIconsBackgroundDefault: true
+    property bool   cfg_WsbLegibilityShadowsDefault: false
+    property bool   cfg_WsbDimInactiveDefault: false
+    property bool   cfg_WsbDesaturateInactiveDefault: false
+    property bool   cfg_WsbCombineIconsDefault: true
+    property bool   cfg_WsbMiddleClickCloseDefault: true
+    property string cfg_WsbChipColorDefault: "#1e1f22"
+    property string cfg_WsbActiveColorDefault: "#f5a623"
+
     Kirigami.FormLayout {
         Item { Kirigami.FormData.isSection: true }
 
@@ -248,6 +272,69 @@ KCM.SimpleKCM {
         CheckBox {
             id: showOnlyOccupiedCheckBox
             text: "Show button only for occupied desktops"
+        }
+
+        Item { Kirigami.FormData.isSection: true }
+        RowLayout {
+            Kirigami.FormData.label: "Workspace-Bar Icons:"
+            CheckBox {
+                id: wsbShowIconsCheckBox
+                text: "Show window icons per desktop (workspace-bar style)"
+            }
+        }
+        RowLayout {
+            Label { text: "Size preset:" }
+            ComboBox {
+                id: wsbSizeComboBox
+                implicitWidth: 130
+                model: ["Small", "Medium", "Large"]
+            }
+        }
+        CheckBox {
+            id: wsbBgCheckBox
+            text: "Draw dark chip behind number and icons"
+        }
+        RowLayout {
+            Kirigami.FormData.label: "Chip background:"
+            ColorButton {
+                id: wsbChipColorButton
+                enabled: true
+                color: cfg_WsbChipColor || "#1e1f22"
+                colorAcceptedCallback: function (color) {
+                    cfg_WsbChipColor = color;
+                }
+            }
+            Label {
+                text: "Active border:"
+            }
+            ColorButton {
+                id: wsbActiveColorButton
+                enabled: true
+                color: cfg_WsbActiveColor || "#f5a623"
+                colorAcceptedCallback: function (color) {
+                    cfg_WsbActiveColor = color;
+                }
+            }
+        }
+        CheckBox {
+            id: wsbShadowCheckBox
+            text: "Legibility shadow behind pills"
+        }
+        CheckBox {
+            id: wsbDimCheckBox
+            text: "Dim unfocused window icons"
+        }
+        CheckBox {
+            id: wsbDesatCheckBox
+            text: "Desaturate unfocused window icons"
+        }
+        CheckBox {
+            id: wsbCombineCheckBox
+            text: "Combine same-app icons with count badge"
+        }
+        CheckBox {
+            id: wsbMiddleCloseCheckBox
+            text: "Middle-click icon closes window(s)"
         }
 
         Item { Kirigami.FormData.isSection: true }

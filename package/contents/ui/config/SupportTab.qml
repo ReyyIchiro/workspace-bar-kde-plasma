@@ -52,6 +52,16 @@ KCM.SimpleKCM {
     property bool   cfg_IndicatorKeepOpacity
     property bool   cfg_IndicatorDistinctOccupied
     property bool   cfg_IndicatorDistinctAttention
+    property bool   cfg_WsbShowIcons
+    property int    cfg_WsbSizeMode
+    property bool   cfg_WsbShowIconsBackground
+    property bool   cfg_WsbLegibilityShadows
+    property bool   cfg_WsbDimInactive
+    property bool   cfg_WsbDesaturateInactive
+    property bool   cfg_WsbCombineIcons
+    property bool   cfg_WsbMiddleClickClose
+    property string cfg_WsbChipColor
+    property string cfg_WsbActiveColor
 
     property string cfg_EmptyDesktopNameDefault
     property bool   cfg_SwitchToNewDesktopDefault
@@ -93,7 +103,20 @@ KCM.SimpleKCM {
     property bool   cfg_IndicatorKeepOpacityDefault
     property bool   cfg_IndicatorDistinctOccupiedDefault
     property bool   cfg_IndicatorDistinctAttentionDefault
+    property bool   cfg_WsbShowIconsDefault
+    property int    cfg_WsbSizeModeDefault
+    property bool   cfg_WsbShowIconsBackgroundDefault
+    property bool   cfg_WsbLegibilityShadowsDefault
+    property bool   cfg_WsbDimInactiveDefault
+    property bool   cfg_WsbDesaturateInactiveDefault
+    property bool   cfg_WsbCombineIconsDefault
+    property bool   cfg_WsbMiddleClickCloseDefault
+    property string cfg_WsbChipColorDefault: "#1e1f22"
+    property string cfg_WsbActiveColorDefault: "#f5a623"
 
+    // Upstream author's donation page. Workspace Bar is a fork of
+    // lenonk/virtual-desktop-bar, so donations continue to go to the
+    // original author. Please keep this link and the credit below.
     readonly property string kofiUrl: "https://ko-fi.com/K3K51TO6S1"
 
     Kirigami.FormLayout {
@@ -110,7 +133,7 @@ KCM.SimpleKCM {
             Layout.fillWidth: true
             Layout.preferredWidth: 0      // IMPORTANT: allow shrinking in layouts
             wrapMode: Text.Wrap
-            text: i18n("If Virtual Desktop Bar makes your Plasma workflow nicer and you’d like to support ongoing maintenance and improvements, here’s the easiest way to do it.")
+            text: i18n("Workspace Bar is a fork of Virtual Desktop Bar. If the original widget makes your Plasma workflow nicer and you’d like to help Lenon Kitchens keep maintaining it, here’s the easiest way to do that.")
         }
 
         RowLayout {
@@ -118,7 +141,7 @@ KCM.SimpleKCM {
             spacing: Kirigami.Units.smallSpacing
 
             Button {
-                text: i18n("Support me on Ko-fi")
+                text: i18n("Support the original author")
                 icon.name: "emblem-favorite"
                 onClicked: Qt.openUrlExternally(root.kofiUrl)
             }
@@ -139,7 +162,7 @@ KCM.SimpleKCM {
             Layout.fillWidth: true
             wrapMode: Text.Wrap
             opacity: 0.8
-            text: i18n("No pressure — using the widget is already appreciated.")
+            text: i18n("No pressure — using the widget is already appreciated. Bug reports for this fork are welcome at https://github.com/ReyyIchiro/workspace-bar-kde-plasma/issues.")
         }
     }
 }

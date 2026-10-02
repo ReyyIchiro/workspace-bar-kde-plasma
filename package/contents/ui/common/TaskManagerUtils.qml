@@ -16,6 +16,46 @@ QtObject {
 
     property var activeWindowCache: ({})
 
+    // WinIdList may be a QStringList ("{uuid1, uuid2}") or an already-joined string.
+    // Return every contained window id instead of just the first match.
+    function extractWinIds(rawWinId) {
+        if (rawWinId === undefined || rawWinId === null) {
+            return [];
+        }
+
+        const ids = [];
+        if (Array.isArray(rawWinId)) {
+            for (let i = 0; i < rawWinId.length; i++) {
+                ids.push(String(rawWinId[i]));
+            }
+        } else {
+            const str = String(rawWinId).replace(/[{}]/g, "");
+            const parts = str.split(",");
+            for (let j = 0; j < parts.length; j++) {
+                const id = parts[j].trim();
+                if (id.length > 0) {
+                    ids.push(id);
+                }
+            }
+        }
+
+        return ids;
+    }
+
+    // True when the task row contains any of the requested window ids
+    function rowMatchesWinIds(rawWinId, winIds) {
+        const rowIds = extractWinIds(rawWinId);
+        if (rowIds.length === 0) {
+            return false;
+        }
+        for (let k = 0; k < winIds.length; k++) {
+            if (rowIds.indexOf(String(winIds[k])) !== -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     signal screenFilteringChanged()
 
     function setScreenFiltering(enabled, geometry) {
@@ -87,25 +127,29 @@ QtObject {
             // This is here to filter out windows with isDemandingAttention set.  I don't want them on every list
             if (!String(desktopList).includes(desktopUuid)) { continue; }
 
-            let str = String(rawWinId);
-            let matches = str.match(/{([^}]+)}/);
-            const winId = matches && matches[1] ? matches[1] : str;
+            // WinIdList holds every window of this task row (same app, several windows).
+            // Extract *all* ids, otherwise grouping by app would always yield a count of 1.
+            const winIds = extractWinIds(rawWinId);
 
-            str = String(rawActivities);
-            matches = str.match(/{([^}]+)}/);
+            // Activities come as a QStringList too; keep the first one as before
+            const str = String(rawActivities);
+            const matches = str.match(/{([^}]+)}/);
             const taskActivities = matches && matches[1] ? matches[1] : str;
 
-            windows.push({
-                appId: appId,
-                appName: appName,
-                isActive: isActive,
-                genericName: genericName,
-                isDemandingAttention: isDemandingAttention,
-                winId: winId,
-                activityId: taskActivities,
-                skipTaskBar: skipTaskBar,
-                skipPager: skipPager,
-            });
+            for (let w = 0; w < winIds.length; w++) {
+                windows.push({
+                    appId: appId,
+                    appName: appName,
+                    // a row can hold several windows but only one active one; flag it on the first entry
+                    isActive: isActive && w === 0,
+                    genericName: genericName,
+                    isDemandingAttention: isDemandingAttention,
+                    winId: winIds[w],
+                    activityId: taskActivities,
+                    skipTaskBar: skipTaskBar,
+                    skipPager: skipPager,
+                });
+            }
         }
 
         return windows;
@@ -147,14 +191,32 @@ QtObject {
             const taskIndex = tasksModel.index(i, 0);
             let rawWinId = tasksModel.data(taskIndex, TaskManager.AbstractTasksModel.WinIdList) || [];
 
-            const str = String(rawWinId);
-            const matches = str.match(/{([^}]+)}/);
-            const compWinId = matches && matches[1] ? matches[1] : str;
+            const rowIds = extractWinIds(rawWinId);
 
-            if (winId === compWinId) {
+            if (rowIds.indexOf(String(winId)) !== -1) {
                 tasksModel.requestActivate(taskIndex);
             }
         }
+    }
+
+    function requestCloseWindows(winIds, sourceDesktopId, activityId) {
+        if (!winIds || winIds.length === 0 || !sourceDesktopId) return false;
+        if (activityId === undefined || activityId === null) { activityId = ""; }
+        tasksModel.virtualDesktop = sourceDesktopId;
+        tasksModel.activity = activityId;
+        var closed = 0;
+        for (var i = 0; i < tasksModel.count; i++) {
+            var taskIndex = tasksModel.index(i, 0);
+            var rawWinId = tasksModel.data(taskIndex, TaskManager.AbstractTasksModel.WinIdList) || [];
+            if (rowMatchesWinIds(rawWinId, winIds)) {
+                var closable = tasksModel.data(taskIndex, TaskManager.AbstractTasksModel.IsClosable);
+                if (closable === undefined || closable === true) {
+                    tasksModel.requestClose(taskIndex);
+                    closed++;
+                }
+            }
+        }
+        return closed > 0;
     }
 
     // Request entering the window at the given index on the specified virtual desktops.
@@ -172,11 +234,9 @@ QtObject {
             const taskIndex = tasksModel.index(i, 0);
             let rawWinId = tasksModel.data(taskIndex, TaskManager.AbstractTasksModel.WinIdList) || [];
 
-            const str = String(rawWinId);
-            const matches = str.match(/{([^}]+)}/);
-            const compWinId = matches && matches[1] ? matches[1] : str;
+            const rowIds = extractWinIds(rawWinId);
 
-            if (winId === compWinId) {
+            if (rowIds.indexOf(String(winId)) !== -1) {
                 tasksModel.requestVirtualDesktops(taskIndex, destDesktopIdList);
             }
         }

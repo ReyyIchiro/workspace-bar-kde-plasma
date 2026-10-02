@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.1.0-wsb1
+
+### Changes
+
+* Forked upstream `lenonk/virtual-desktop-bar` by Lenon Kitchens and wsdfhjxc as
+  **Workspace Bar (Plasma)** (plasmoid id `org.kde.plasma.workspacebar`,
+  version `1.1.0-wsb1`, license unchanged: GPL-3.0)
+* Support tab now credits the original author by name; the upstream Ko-fi
+  link is kept so donations still reach Lenon Kitchens
+* `Website` / `BugReportsUrl` in `metadata.json` point at this fork
+* Untracked the committed JetBrains `.idea/` project files
+* Added workspace-bar style desktop buttons (`WsbIconStrip.qml`): number pill +
+  per-desktop window icon strip with soft shadows
+* Window icons: click to activate, optional middle-click close, optional per-app
+  grouping with window-count badge, dim/desaturate for inactive windows
+* New Appearance options: `Show Window Icons And Number`, `Icon Size Mode`,
+  `Show Icons Background`, `Legibility Shadows`, `Dim Inactive`,
+  `Desaturate Inactive`, `Combine Icons Per App`, `Middle-Click Closes Windows`
+* Added `requestCloseWindows()` helper to `TaskManagerUtils.qml`
+* Documented user-level build/install (`~/.local`) including the required
+  `QML_IMPORT_PATH` registration of the C++ QML plugin
+
 ## Git
 
 ### Changes

@@ -44,6 +44,16 @@ KCM.SimpleKCM {
     property bool   cfg_IndicatorKeepOpacity
     property bool   cfg_IndicatorDistinctOccupied
     property bool   cfg_IndicatorDistinctAttention
+    property bool   cfg_WsbShowIcons
+    property int    cfg_WsbSizeMode
+    property bool   cfg_WsbShowIconsBackground
+    property bool   cfg_WsbLegibilityShadows
+    property bool   cfg_WsbDimInactive
+    property bool   cfg_WsbDesaturateInactive
+    property bool   cfg_WsbCombineIcons
+    property bool   cfg_WsbMiddleClickClose
+    property string cfg_WsbChipColor
+    property string cfg_WsbActiveColor
 
     // Add defaults (Plasma may inject cfg_*Default too)
     property string cfg_EmptyDesktopNameDefault
@@ -86,6 +96,16 @@ KCM.SimpleKCM {
     property bool   cfg_IndicatorKeepOpacityDefault
     property bool   cfg_IndicatorDistinctOccupiedDefault
     property bool   cfg_IndicatorDistinctAttentionDefault
+    property bool   cfg_WsbShowIconsDefault
+    property int    cfg_WsbSizeModeDefault
+    property bool   cfg_WsbShowIconsBackgroundDefault
+    property bool   cfg_WsbLegibilityShadowsDefault
+    property bool   cfg_WsbDimInactiveDefault
+    property bool   cfg_WsbDesaturateInactiveDefault
+    property bool   cfg_WsbCombineIconsDefault
+    property bool   cfg_WsbMiddleClickCloseDefault
+    property string cfg_WsbChipColorDefault: "#1e1f22"
+    property string cfg_WsbActiveColorDefault: "#f5a623"
 
     // Empty desktops
     property string cfg_EmptyDesktopName

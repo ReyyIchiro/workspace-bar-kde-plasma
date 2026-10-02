@@ -1,24 +1,26 @@
 {
   "KPlugin": {
-    "Name": "Virtual Desktop Bar",
-    "Description": "Manage your virtual desktops",
+    "Name": "Workspace Bar (Plasma)",
+    "Description": "workspace-bar style pills: number + window icons per virtual desktop",
     "Icon": "virtualdesktopbar",
 
     "Authors": [
       { "Name": "Lenon Kitchens", "Email": "lenon.kitchens@gmail.com" },
-      { "Name": "wsdfhjxc" }
+      { "Name": "wsdfhjxc" },
+      { "Name": "Raihan Zaky", "Email": "raihanzaky0515@gmail.com", "Roles": ["Fork maintainer"] }
     ],
 
     "Category": "Windows and Tasks",
-    "Version": "1.0.1",
+    "Version": "1.1.0-wsb1",
     "License": "GPL",
-    "Id": "org.kde.plasma.virtualdesktopbar",
+    "Id": "org.kde.plasma.workspacebar",
 
     "ServiceTypes": [
       "Plasma/Applet"
     ],
 
-    "Website": "https://github.com/lenonk/virtual-desktop-bar",
+    "Website": "https://github.com/ReyyIchiro/workspace-bar-kde-plasma",
+    "BugReportsUrl": "https://github.com/ReyyIchiro/workspace-bar-kde-plasma/issues",
 
     "Dependencies": [
       "org.kde.kwin"

@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.27)
 
-project(virtual-desktop-bar)
+project(workspace-bar-plasma)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -27,7 +27,8 @@ find_package(PlasmaActivities ${KF6_MIN_VERSION} REQUIRED)
 find_package(KWin REQUIRED)
 
 add_subdirectory(plugin)
-plasma_install_package(package org.kde.plasma.virtualdesktopbar)
+# Install as a distinct plasmoid id so upstream Virtual Desktop Bar stays untouched.
+plasma_install_package(package org.kde.plasma.workspacebar)
 
 install(FILES
         ${CMAKE_SOURCE_DIR}/package/contents/icons/hicolor/scalable/apps/virtualdesktopbar.svg

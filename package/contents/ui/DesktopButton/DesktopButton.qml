@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import org.kde.kirigami as Kirigami
 
 import "../common" as Common
@@ -11,6 +12,9 @@ Rectangle {
     id: buttonRect
 
     property QtObject config: plasmoid.configuration
+
+    // workspace-bar strip mode (bound to config, defaults true when key missing)
+    property bool wsbMode: config.WsbShowIcons === undefined ? true : config.WsbShowIcons
 
     readonly property int tooltipDelay: 650
     readonly property int animationSizeDuration: 100
@@ -34,17 +38,33 @@ Rectangle {
 
     property alias mouseArea: _mouseArea
 
-    property int verticalMargins: 5
-    property int horizontalPadding: config.ButtonMarginHorizontal + (Common.LayoutProps.isVerticalOrientation ? 0 : config.ButtonSpacing)
-    property int verticalPadding: config.ButtonMarginVertical + (Common.LayoutProps.isVerticalOrientation ? config.ButtonSpacing : 0)
+    // workspace-bar helpers (missing keys fall back to sensible defaults)
+    function wsbBool(key, fallback) {
+        var v = config[key];
+        return v === undefined ? fallback : v;
+    }
+    function wsbColor(key, fallback) {
+        var v = config[key];
+        return (v === undefined || v === "") ? fallback : v;
+    }
+    property bool wsbFillOn: wsbBool("WsbShowIconsBackground", true)
+
+    property int verticalMargins: wsbMode ? 2 : 5
+    // workspace-bar chip: comfortable inner padding, gap comes from the grid margins
+    property int horizontalPadding: wsbMode ? 10 : config.ButtonMarginHorizontal + (Common.LayoutProps.isVerticalOrientation ? 0 : config.ButtonSpacing)
+    property int verticalPadding: wsbMode ? 5 : config.ButtonMarginVertical + (Common.LayoutProps.isVerticalOrientation ? config.ButtonSpacing : 0)
 
     Layout.fillHeight: !Common.LayoutProps.isVerticalOrientation
     Layout.fillWidth: Common.LayoutProps.isVerticalOrientation
     Layout.topMargin: verticalMargins
     Layout.bottomMargin: verticalMargins
 
-    implicitHeight: label.implicitHeight + 2 * verticalPadding + (Common.LayoutProps.isVerticalOrientation ? indicator.sideLineLabelReserve : 0)
-    implicitWidth: label.implicitWidth + 2 * horizontalPadding + (Common.LayoutProps.isVerticalOrientation ? 0 : indicator.sideLineLabelReserve)
+    // Content is either the workspace-bar strip (number + icons) or the plain label
+    readonly property real contentHeight: wsbMode ? wsbStrip.implicitHeight : label.implicitHeight
+    readonly property real contentWidth: wsbMode ? wsbStrip.implicitWidth : label.implicitWidth
+
+    implicitHeight: contentHeight + 2 * verticalPadding + (Common.LayoutProps.isVerticalOrientation && !wsbMode ? indicator.sideLineLabelReserve : 0)
+    implicitWidth: contentWidth + 2 * horizontalPadding + (Common.LayoutProps.isVerticalOrientation || wsbMode ? 0 : indicator.sideLineLabelReserve)
 
     opacity: applyOpacityRules()
     color: applyColorRules()
@@ -176,6 +196,43 @@ Rectangle {
         onTriggered: buttonRect.state = "visible"
     }
 
+    // workspace-bar chip: dark rounded background behind [number | icons]
+    Rectangle {
+        id: wsbChip
+        anchors.fill: parent
+        // small inset so neighbouring chips keep a visible gap
+        anchors.leftMargin: 3
+        anchors.rightMargin: 3
+        visible: buttonRect.wsbMode
+        radius: Kirigami.Units.smallSpacing + 3
+        color: buttonRect.wsbFillOn ? buttonRect.wsbColor("WsbChipColor", "#1e1f22") : "transparent"
+        Behavior on color {
+            enabled: config.AnimationsEnable
+            ColorAnimation { duration: 120 }
+        }
+
+        // active workspace: configurable accent border (workspace-bar style highlight)
+        border.width: buttonRect.isCurrent ? 2 : 1
+        border.color: buttonRect.isCurrent
+            ? buttonRect.wsbColor("WsbActiveColor", "#f5a623")
+            : (buttonRect.wsbFillOn ? Qt.rgba(1, 1, 1, 0.10) : "transparent")
+        Behavior on border.color {
+            enabled: config.AnimationsEnable
+            ColorAnimation { duration: 120 }
+        }
+
+        // optional legibility shadow behind the chip
+        layer.enabled: buttonRect.wsbMode && buttonRect.wsbBool("WsbLegibilityShadows", false)
+        layer.effect: DropShadow {
+            horizontalOffset: 0
+            verticalOffset: 1
+            radius: 5
+            samples: 11
+            color: "#73000000"
+            transparentBorder: true
+        }
+    }
+
     Rectangle {
         id: dragBorderHighlight
 
@@ -227,11 +284,36 @@ Rectangle {
 
     DesktopButtonIndicator {
         id: indicator
+        visible: !buttonRect.wsbMode
+    }
+
+    // workspace-bar pill: number + window icons (replaces lone text label)
+    WsbIconStrip {
+        id: wsbStrip
+        anchors.centerIn: parent
+        visible: buttonRect.wsbMode
+        desktopUuid: buttonRect.uuid
+        desktopNumber: buttonRect.number
+        isCurrent: buttonRect.isCurrent
+        hovered: buttonRect.mouseArea.containsMouse
+    }
+
+    // Rebuild icon strip when workspace-bar options change
+    Connections {
+        target: buttonRect.config
+
+        function onValueChanged(key, value) {
+            if (typeof key === "string" && key.indexOf("Wsb") === 0 && wsbStrip) {
+                wsbStrip._modelSig = "";
+                wsbStrip.refresh();
+            }
+        }
     }
 
     DesktopButtonLabel {
         id: label
         text: getButtonLabel()
+        visible: !buttonRect.wsbMode
     }
 
     MouseArea {
@@ -452,6 +534,11 @@ Rectangle {
         activeWindowName = Common.TaskManager.getActiveWindowName(uuid, activityId);
         isEmpty = !Common.TaskManager.hasWindows(uuid, activityId);
         isUrgent = Common.TaskManager.desktopNeedsAttention(uuid, activityId);
+        if (typeof wsbStrip !== "undefined" && wsbStrip !== null) {
+            wsbStrip.desktopUuid = uuid;
+            wsbStrip.isCurrent = isCurrent;
+            wsbStrip.refresh();
+        }
 
         // Update appearance if properties changed
         Qt.callLater(applyOpacityRules);

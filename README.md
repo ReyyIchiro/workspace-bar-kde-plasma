@@ -1,10 +1,19 @@
-# Virtual Desktop Bar (Plasma 6)
+# Workspace Bar (Plasma)
 
-Virtual Desktop Bar is a KDE Plasma widget that provides a clean, configurable, text-based virtual desktop switcher. It replaces the default Pager with a compact desktop bar focused on clarity, customization, and modern Plasma 6 Wayland environments.
+A KDE Plasma 6 widget that brings the **GNOME `workspace-bar` look-and-feel** to Plasma: each
+virtual desktop is a small pill showing the **desktop number** plus a strip of **window icons**
+for the apps running on that desktop — alongside the classic configurable desktop bar features
+(desktop switching, indicators, labels, dynamic desktop management).
+
+This is a fork of [lenonk/virtual-desktop-bar](https://github.com/lenonk/virtual-desktop-bar)
+by Lenon Kitchens, rebranded as **Workspace Bar (Plasma)** with plasmoid id
+`org.kde.plasma.workspacebar`. Both projects are GPL-3.0. The upstream project's desktop
+switching, indicators, labels, and dynamic desktop management are preserved unchanged;
+this fork adds the window-icon pill rendering described below.
+
+Forked and maintained by Raihan Zaky ([@ReyyIchiro](https://github.com/ReyyIchiro)).
 
 The widget displays desktops as labeled buttons with configurable indicators, styling, and behavior options. It also supports optional dynamic desktop management to automatically maintain a spare empty desktop.
-
-This project is a modern continuation of earlier work, updated and maintained specifically for Plasma 6 on Wayland.
 
 ---
 
@@ -33,6 +42,22 @@ This project is a modern continuation of earlier work, updated and maintained sp
 - Quickly switch desktops with a click
 - Optional scroll-wheel desktop switching
 - Optional filtering by screen
+
+### Workspace-Bar Style (GNOME workspace-bar look)
+Each desktop button can render as a "pill" (configurable via the Appearance tab):
+
+- **Number pill** — the desktop number, highlighted for the current desktop
+- **Window icon strip** — one icon per app running on that desktop
+  - Left-click an icon to activate its window
+  - Middle-click an icon to close its windows (optional)
+  - Optional per-app grouping with a window-count badge (`Combine Icons`)
+  - Optional dimming (`Dim Inactive`) and desaturation (`Desaturate Inactive`) of inactive windows
+  - Optional translucent pill background and soft legibility shadows
+  - Icon size follows `Icon Size Mode` (Small = 16 px, Normal = 20 px, Large = 24 px)
+- The strip updates automatically as windows open/close/move between desktops
+
+The legacy label + indicator rendering remains available by disabling
+`Show Window Icons And Number` in the Appearance tab.
 
 ### Indicator Styles
 Multiple indicator styles are available:
@@ -73,46 +98,70 @@ Optionally:
 
 ---
 
-## Installation
+## Installation (user-level, no sudo)
 
-### From the AUR (Arch Linux)
+It installs entirely under `$HOME`, so no root/sudo is required. Build artifacts are not published to any distro repository — only the source repo here.
 
-The widget is available in the AUR:
+### Requirements
 
-`plasma6-applets-virtual-desktop-bar-wayland`
+- KDE Plasma 6 (Qt 6 / KF6) on Wayland
+- `qt6-5compat-graphicaleffects` (ships with Qt on most distros — used for pill shadows)
 
-Install using your preferred AUR helper:
+### Build and install
 
-    paru -S plasma6-applets-virtual-desktop-bar-wayland
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/.local"
+cmake --build build -j"$(nproc)"
+cmake --install build
+```
 
-or:
+This installs the plasmoid to `~/.local/share/plasma/plasmoids/org.kde.plasma.workspacebar/`
+and a small **C++ QML plugin** to `~/.local/lib/qml/org/kde/plasma/virtualdesktopbar/`.
 
-    yay -S plasma6-applets-virtual-desktop-bar-wayland
+### Register the QML plugin (required for local installs)
 
-After installation, add the widget to a panel or desktop via Plasma's widget picker.
+Qt only searches system QML paths by default, so the plugin under `~/.local/lib/qml` must be
+exported. Create `~/.config/environment.d/95-qml-import-path.conf`:
 
----
+```
+QML_IMPORT_PATH=/home/YOUR_USER/.local/lib/qml
+```
 
-### Manual Installation
+Then restart the session (or just the shell):
 
-Clone the repository:
+```sh
+systemctl --user restart plasma-plasmashell.service
+```
 
-    git clone https://github.com/lenonk/virtual-desktop-bar.git
-    cd virtual-desktop-bar
+> On Qt 6 the variable is `QML_IMPORT_PATH` (`QML2_IMPORT_PATH` also works as a legacy alias).
+> Without this step the widget fails with `module "org.kde.plasma.virtualdesktopbar" is not installed`
+> (shown as `Type Common.Backend unavailable`).
 
-Build and install:
+### Add it to a panel
 
-    cmake -B build
-    cmake --build build
-    sudo cmake --install build
+Use Plasma's widget explorer (*Add Widgets → Workspace Bar (Plasma)*), or run:
 
-Restart plasmashell or re-login if the widget does not appear immediately.
+```sh
+gdbus call --session --dest org.kde.plasmashell --object-path /PlasmaShell \
+  --method org.kde.PlasmaShell.evaluateScript \
+  'var ps = panels(); for (var i = 0; i < ps.length; i++) { if (ps[i].location === "top") { ps[i].addWidget("org.kde.plasma.workspacebar"); break; } }'
+```
+
+Then drag the widget to the position you want (e.g. far left, like GNOME's Activities area)
+via *right-click panel → Edit Mode*.
+
+### Rebuilding after changes
+
+```sh
+cmake --build build -j"$(nproc)" && cmake --install build
+systemctl --user restart plasma-plasmashell.service   # reload QML/plugin
+```
 
 ---
 
 ## Usage
 
-1. Add **Virtual Desktop Bar** to a panel or desktop.
+1. Add **Workspace Bar (Plasma)** to a panel or desktop.
 2. Open widget settings to configure appearance and behavior.
 3. Customize indicator styles, labels, colors, and dynamic desktop options to your liking.
 
@@ -153,16 +202,35 @@ If reporting an issue, please include:
 
 ## License
 
-This project is distributed under the GPL license. See repository files for details.
+This project is distributed under the **GPL-3.0**, inherited from upstream
+[virtual-desktop-bar](https://github.com/lenonk/virtual-desktop-bar). The full license text is in
+[`LICENSE`](LICENSE). This remains a GPL work: any redistribution, modified or unmodified, must
+carry the same license and attribution.
 
 ---
 
 ## Acknowledgements
 
-This project builds upon earlier virtual desktop bar efforts within the KDE community and continues development for modern Plasma environments.
+- **[Lenon Kitchens](https://github.com/lenonk) / [wsdfhjxc](https://github.com/wsdfhjxc)** —
+  authors of **[lenonk/virtual-desktop-bar](https://github.com/lenonk/virtual-desktop-bar)**, the
+  upstream widget this project is forked from: desktop switching, indicators, labels, dynamic
+  desktop management, and the Plasma 6 port. Their Ko-fi donation page is still linked in the
+  widget's Support tab — please consider supporting them there.
+- **GNOME `workspace-bar` / workspace-bar style panels** — the visual design of the
+  number pill + per-desktop window icon strip reproduced by `WsbIconStrip.qml`.
+- The KDE Plasma and KDE Frameworks teams.
+
+The upstream git history is preserved in this repository so the fork relationship stays
+verifiable. Internal module names (the `virtualdesktopbar` QML plugin) are left unchanged from
+upstream on purpose.
 
 ---
 ## Support
+
+Fork-specific bugs: https://github.com/ReyyIchiro/workspace-bar-kde-plasma/issues
+Upstream issues (unchanged behaviour): https://github.com/lenonk/virtual-desktop-bar/issues
+
+Donations go to the original author, Lenon Kitchens:
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/K3K51TO6S1)
 
