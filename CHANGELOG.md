@@ -22,6 +22,23 @@
 * Documented user-level build/install (`~/.local`) including the required
   `QML_IMPORT_PATH` registration of the C++ QML plugin
 
+### Performance
+
+* The Appearance tab no longer enumerates system fonts on load. The custom-font
+  dropdown previously called `Qt.fontFamilies()` in `Component.onCompleted`,
+  which costs ~45-90 ms on systems with 1000+ installed font families and
+  built a 1000-entry JS array even when the dropdown was never opened. The
+  list is now built on `popup.onAboutToShow` (the first time the dropdown is
+  actually opened) and the stored font is re-selected once the model exists
+* `HintIcon.qml` no longer imports `Qt5Compat.GraphicalEffects`,
+  `"../common" as UICommon` or `"../"`. None of them were used by that file,
+  but `import "../"` pulled the whole `contents/ui` directory (including the
+  applet entry point) into the KCM dialog's import graph on every config tab
+  load
+* Also fixes a latent crash: the "Custom font" checkbox indexed
+  `combo.model[currentIndex].value` directly, which throws if the model is
+  empty
+
 ## Git
 
 ### Changes

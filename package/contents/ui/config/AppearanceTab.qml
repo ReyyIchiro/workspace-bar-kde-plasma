@@ -423,9 +423,11 @@ KCM.SimpleKCM {
                 checked: cfg_LabelFont
                 onCheckedChanged: {
                     if (checked) {
-                        var currentIndex = labelCustomFontComboBox.currentIndex;
-                        var selectedFont = labelCustomFontComboBox.model[currentIndex].value;
-                        cfg_LabelFont = selectedFont;
+                        // The combo's model is built lazily (see popup.onAboutToShow),
+                        // so currentValue may be empty here - fall back to the
+                        // stored value instead of indexing into a null model.
+                        var font = labelCustomFontComboBox.currentValue;
+                        cfg_LabelFont = font ? font : (cfg_LabelFont || Kirigami.Theme.defaultFont.family);
                     } else {
                         cfg_LabelFont = "";
                     }
@@ -443,23 +445,53 @@ KCM.SimpleKCM {
                 popup.width: 300
 
                 property bool _initDone: false
+                property bool _selectionRestored: false
 
-                Component.onCompleted: {
+                // Selects the stored font once the (lazily built) model exists.
+                // Qt.fontFamilies() costs ~90 ms on systems with 1000+ fonts and
+                // builds a 1000-entry JS array, so the list is only built the
+                // first time the dropdown is actually opened. Without this the
+                // Appearance tab stalls on load even if the user never opens
+                // the font list.
+                function _buildModel() {
+                    if (model && model.length > 0)
+                        return;
+
                     var array = [];
                     var fonts = Qt.fontFamilies()
                     for (var i = 0; i < fonts.length; i++) {
                         array.push({text: fonts[i], value: fonts[i]});
                     }
                     model = array;
+                }
+
+                function _restoreSelection() {
+                    // model is undefined until it has been assigned, so guard
+                    // against both null and undefined.
+                    if (_selectionRestored || !model || model.length === 0)
+                        return;
 
                     var foundIndex = find(cfg_LabelFont);
-                    if (foundIndex == -1) {
+                    if (foundIndex === -1)
                         foundIndex = find(Kirigami.Theme.defaultFont.family);
-                    }
-                    if (foundIndex >= 0) {
-                        currentIndex = foundIndex;
-                    }
 
+                    if (foundIndex >= 0)
+                        currentIndex = foundIndex;
+
+                    _selectionRestored = true;
+                }
+
+                // ComboBox has no "opened" signal of its own - it lives on the popup.
+                // aboutToShow (not opened) is required: "opened" fires after the
+                // popup content is created, and the delegate below needs the model
+                // to already exist or the popup fails to populate.
+                popup.onAboutToShow: {
+                    _buildModel();
+                    _restoreSelection();
+                }
+
+                Component.onCompleted: {
+                    _restoreSelection();
                     _initDone = true;
                 }
 
