@@ -21,6 +21,36 @@ Item {
     property bool isHovered: false
     property Item buttonGrid: null
 
+    // Live refresh: TasksModel is a QSortFilterProxyModel — its count can
+    // still be settling (async refilter) when the tooltip first opens, which
+    // previously stuck the tooltip on a stale "Empty" snapshot. Re-run
+    // updateContent (debounced) while the tooltip is visible so it heals
+    // itself within ~one frame batch instead of waiting for a re-hover.
+    Timer {
+        id: liveRefreshTimer
+        interval: 200
+        repeat: false
+        running: false
+        onTriggered: {
+            if (tooltip.visible
+                    && tooltipRoot.sourceButton
+                    && tooltipRoot.sourceButton.mouseArea
+                    && tooltipRoot.sourceButton.mouseArea.containsMouse) {
+                updateContent();
+            }
+        }
+    }
+
+    Connections {
+        target: Common.TaskManager ? Common.TaskManager.tasksModel : null
+        enabled: target !== null
+        function onCountChanged() {
+            if (tooltip.visible && !liveRefreshTimer.running) {
+                liveRefreshTimer.start();
+            }
+        }
+    }
+
     PlasmaCore.Dialog {
         id: tooltip
 
