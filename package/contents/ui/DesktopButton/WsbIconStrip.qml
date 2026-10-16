@@ -113,6 +113,19 @@ RowLayout {
 
     property string _modelSig: ""
 
+    // Icon name cache: getIconFromDesktopFile hits KService (disk/ksycoca)
+    // on every refresh for every window — memoize per appId since an
+    // app's icon never changes during a session.
+    property var _iconCache: ({})
+
+    function cachedIconName(appId) {
+        var hit = _iconCache[appId];
+        if (hit !== undefined) { return hit; }
+        var name = backend.getIconFromDesktopFile(appId);
+        _iconCache[appId] = name;
+        return name;
+    }
+
     function refresh() {
         if (!wsbBool("WsbShowIcons", true)) {
             if (iconsModel.count > 0) { iconsModel.clear(); }
@@ -148,7 +161,7 @@ RowLayout {
             for (var k = 0; k < order.length; k++) {
                 var g = byApp[order[k]];
                 iconsModel.append({
-                    iconName: backend.getIconFromDesktopFile(order[k]),
+                    iconName: cachedIconName(order[k]),
                     appName: g.appName,
                     winIds: g.winIds.join(","),
                     windowCount: g.winIds.length,
@@ -160,7 +173,7 @@ RowLayout {
             for (var j = 0; j < wins.length; j++) {
                 var s = wins[j];
                 iconsModel.append({
-                    iconName: backend.getIconFromDesktopFile(s.appId),
+                    iconName: cachedIconName(s.appId),
                     appName: s.appName,
                     winIds: s.winId,
                     windowCount: 1,
