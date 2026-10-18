@@ -43,11 +43,22 @@ Rectangle {
         var v = config[key];
         return v === undefined ? fallback : v;
     }
+    function wsbInt(key, fallback) {
+        var v = config[key];
+        return (v === undefined || v === null || v === "") ? fallback : Number(v);
+    }
     function wsbColor(key, fallback) {
         var v = config[key];
         return (v === undefined || v === "") ? fallback : v;
     }
     property bool wsbFillOn: wsbBool("WsbShowIconsBackground", true)
+
+    // Chip fill = configured color, with its own alpha scaled by the chip opacity
+    // setting. At 0% the fill is fully transparent but the outline/border is kept,
+    // giving an "outlined pill" look (as opposed to disabling the background entirely).
+    readonly property color chipBaseColor: wsbColor("WsbChipColor", "#1e1f22")
+    readonly property real chipOpacity: Math.max(0, Math.min(100, wsbInt("WsbChipOpacity", 100))) / 100.0
+    readonly property bool wsbFillVisible: wsbFillOn && chipOpacity > 0
 
     property int verticalMargins: wsbMode ? 2 : 5
     // workspace-bar chip: comfortable inner padding, gap comes from the grid margins
@@ -205,7 +216,10 @@ Rectangle {
         anchors.rightMargin: 3
         visible: buttonRect.wsbMode
         radius: Kirigami.Units.smallSpacing + 3
-        color: buttonRect.wsbFillOn ? buttonRect.wsbColor("WsbChipColor", "#1e1f22") : "transparent"
+        color: buttonRect.wsbFillVisible
+            ? Qt.rgba(buttonRect.chipBaseColor.r, buttonRect.chipBaseColor.g,
+                      buttonRect.chipBaseColor.b, buttonRect.chipBaseColor.a * buttonRect.chipOpacity)
+            : "transparent"
         Behavior on color {
             enabled: config.AnimationsEnable
             ColorAnimation { duration: 120 }

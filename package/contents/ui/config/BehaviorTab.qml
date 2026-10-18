@@ -54,6 +54,7 @@ KCM.SimpleKCM {
     property bool   cfg_WsbMiddleClickClose
     property string cfg_WsbChipColor
     property string cfg_WsbActiveColor
+    property int    cfg_WsbChipOpacity
 
     // Add defaults (Plasma may inject cfg_*Default too)
     property string cfg_EmptyDesktopNameDefault
@@ -106,6 +107,7 @@ KCM.SimpleKCM {
     property bool   cfg_WsbMiddleClickCloseDefault
     property string cfg_WsbChipColorDefault: "#1e1f22"
     property string cfg_WsbActiveColorDefault: "#f5a623"
+    property int    cfg_WsbChipOpacityDefault: 100
 
     // Empty desktops
     property string cfg_EmptyDesktopName

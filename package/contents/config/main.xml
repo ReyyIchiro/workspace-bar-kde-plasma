@@ -169,6 +169,10 @@
             <label>Workspace chip background color</label>
             <default>#1e1f22</default>
         </entry>
+        <entry name="WsbChipOpacity" type="Int">
+            <label>Workspace chip background opacity in percent (0 = fully transparent)</label>
+            <default>100</default>
+        </entry>
         <entry name="WsbActiveColor" type="String">
             <label>Border color of the active workspace chip</label>
             <default>#f5a623</default>

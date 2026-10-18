@@ -22,6 +22,10 @@ RowLayout {
     property int wsbIconSize: wsbInt("WsbSizeMode", 1) === 0 ? 16 : (wsbInt("WsbSizeMode", 1) === 2 ? 26 : 20)
     // Chip background is drawn by DesktopButton; the strip only lays out content
     property bool wsbFillOn: wsbBool("WsbShowIconsBackground", true)
+    // True only when a chip fill is actually visible (background enabled and
+    // opacity above 0%), so the number/badge adapt their colors when the chip
+    // is fully transparent.
+    property bool chipFilled: wsbFillOn && wsbInt("WsbChipOpacity", 100) > 0
     spacing: 6 // gap between the number and the icon row
     Layout.alignment: Qt.AlignVCenter
     SystemPalette { id: sysPal }
@@ -35,7 +39,7 @@ RowLayout {
         text: iconStrip.desktopNumber
         font.pixelSize: iconStrip.wsbIconSize * 0.64
         font.bold: true
-        color: iconStrip.wsbFillOn ? "#f4f4f5" : Kirigami.Theme.textColor
+        color: iconStrip.chipFilled ? "#f4f4f5" : Kirigami.Theme.textColor
         Behavior on color {
             enabled: config.AnimationsEnable
             ColorAnimation { duration: 120 }
@@ -81,7 +85,7 @@ RowLayout {
                         visible: iconStrip.wsbBool("WsbCombineIcons", true) && model.windowCount > 1
                         color: sysPal.highlight
                         border.width: 1
-                        border.color: iconStrip.wsbBool("WsbShowIconsBackground", true) ? "#1e1f22" : "transparent"
+                        border.color: iconStrip.chipFilled ? "#1e1f22" : "transparent"
                         Text {
                             id: countLabel
                             anchors.centerIn: parent

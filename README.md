@@ -53,6 +53,9 @@ Each desktop button can render as a "pill" (configurable via the Appearance tab)
   - Optional per-app grouping with a window-count badge (`Combine Icons`)
   - Optional dimming (`Dim Inactive`) and desaturation (`Desaturate Inactive`) of inactive windows
   - Optional translucent pill background and soft legibility shadows
+  - `Chip Background Opacity` slider: 100 % keeps the solid chip, lower values
+    make it translucent, and 0 % makes the fill fully transparent while the
+    chip outline (and the active border) stay visible — an "outlined pill" look
   - Icon size follows `Icon Size Mode` (Small = 16 px, Normal = 20 px, Large = 24 px)
 - The strip updates automatically as windows open/close/move between desktops
 

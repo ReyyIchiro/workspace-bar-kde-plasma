@@ -62,6 +62,7 @@ KCM.SimpleKCM {
     property bool   cfg_WsbMiddleClickClose
     property string cfg_WsbChipColor
     property string cfg_WsbActiveColor
+    property int    cfg_WsbChipOpacity
 
     property string cfg_EmptyDesktopNameDefault
     property bool   cfg_SwitchToNewDesktopDefault
@@ -113,6 +114,7 @@ KCM.SimpleKCM {
     property bool   cfg_WsbMiddleClickCloseDefault
     property string cfg_WsbChipColorDefault: "#1e1f22"
     property string cfg_WsbActiveColorDefault: "#f5a623"
+    property int    cfg_WsbChipOpacityDefault: 100
 
     // Upstream author's donation page. Workspace Bar is a fork of
     // lenonk/virtual-desktop-bar, so donations continue to go to the

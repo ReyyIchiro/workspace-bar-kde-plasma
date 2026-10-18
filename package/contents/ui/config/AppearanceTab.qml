@@ -125,6 +125,7 @@ KCM.SimpleKCM {
     property alias cfg_WsbMiddleClickClose: wsbMiddleCloseCheckBox.checked
     property string cfg_WsbChipColor
     property string cfg_WsbActiveColor
+    property alias cfg_WsbChipOpacity: wsbChipOpacitySlider.value
 
     // Schema defaults for the "Defaults" button (must match main.xml)
     property bool   cfg_WsbShowIconsDefault: true
@@ -137,6 +138,7 @@ KCM.SimpleKCM {
     property bool   cfg_WsbMiddleClickCloseDefault: true
     property string cfg_WsbChipColorDefault: "#1e1f22"
     property string cfg_WsbActiveColorDefault: "#f5a623"
+    property int    cfg_WsbChipOpacityDefault: 100
 
     Kirigami.FormLayout {
         Item { Kirigami.FormData.isSection: true }
@@ -314,6 +316,31 @@ KCM.SimpleKCM {
                 colorAcceptedCallback: function (color) {
                     cfg_WsbActiveColor = color;
                 }
+            }
+        }
+        RowLayout {
+            Kirigami.FormData.label: "Chip background opacity:"
+
+            Slider {
+                id: wsbChipOpacitySlider
+                Layout.preferredWidth: 200
+                from: 0
+                to: 100
+                stepSize: 1
+                snapMode: Slider.SnapAlways
+                enabled: cfg_WsbShowIconsBackground
+            }
+
+            Label {
+                Layout.minimumWidth: 40
+                horizontalAlignment: Text.AlignRight
+                enabled: wsbChipOpacitySlider.enabled
+                text: Math.round(wsbChipOpacitySlider.value) + "%"
+            }
+
+            HintIcon {
+                tooltipText: "Opacity of the chip fill. At 0% the fill becomes fully transparent " +
+                             "while the chip outline and the active border stay visible."
             }
         }
         CheckBox {

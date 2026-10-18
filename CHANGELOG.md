@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Changes
+
+* Appearance: added a **Chip Background Opacity** slider (0–100 %, default
+  100 %). It scales the alpha of the workspace-bar chip fill so the pill can be
+  translucent, or fully transparent at 0 % while keeping the chip outline and
+  the active accent border. When the fill becomes fully transparent the number
+  and window-count badge automatically switch to the theme text color so they
+  stay legible. The control is disabled while `Draw dark chip behind number and
+  icons` is turned off, since no fill is drawn in that case. New config key
+  `WsbChipOpacity` (Int).
+
 ## 1.1.0-wsb1
 
 ### Changes
